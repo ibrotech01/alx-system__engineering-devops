@@ -1,4 +1,2 @@
-[master 29b643b] my thfouth commit
- 3 files changed, 5 insertions(+), 1 deletion(-)
- create mode 100644 0x00-shell_basics/.swp
- create mode 100755 0x00-shell_basics/3-listfiles
+[master e650190] my fourth commit
+ 1 file changed, 4 insertions(+), 3 deletions(-)
