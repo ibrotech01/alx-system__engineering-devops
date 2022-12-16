@@ -1,2 +1,2 @@
 #!/bin/bash
-clone betty, hello
+chown betty, hello
