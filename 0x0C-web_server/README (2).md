@@ -4,7 +4,6 @@
 
 **Web Server:**
 Do not mix up web server and server.
-
 A web server is a software that delivers web pages. A server is an actual computer.
 
 But you might hear people referring to a web server using the word server. (Check out the server concept page to learn more about this.)
