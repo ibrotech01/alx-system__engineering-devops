@@ -1,35 +1,34 @@
-# puppet manifest creating a custom HTTP header response
-exec { 'apt-get-update':
-  command => '/usr/bin/apt-get update',
+# Create a custom header with puppet
+exec {'update':
+  provider => shell,
+  command  => 'sudo apt-get -y update',
+  before   => Exec['install Nginx'],
 }
 
-package { 'nginx':
-  ensure  => installed,
-  require => Exec['apt-get-update'],
+exec {'install Nginx':
+  provider => shell,
+  command  => 'sudo apt-get -y install nginx',
+  before   => Exec['add_header'],
 }
 
-file_line { 'a':
-  ensure  => 'present',
-  path    => '/etc/nginx/sites-available/default',
-  after   => 'listen 80 default_server;',
-  line    => 'rewrite ^/redirect_me https://www.youtube.com/watch?v=QH2-TGUlwu4 permanent;',
-  require => Package['nginx'],
+exec { 'add_header':
+  provider    => shell,
+  environment => ["HOST=${hostname}"],
+  command     => 'sudo sed -i "s/include \/etc\/nginx\/sites-enabled\/\*;/include \/etc\/nginx\/sites-enabled\/\*;\n\tadd_header X-Served-By \"$HOST\";/" /etc/nginx/nginx.conf',
+  before      => Exec['restart Nginx'],
 }
 
-file_line { 'b':
-  ensure  => 'present',
-  path    => '/etc/nginx/sites-available/default',
-  after   => 'listen 80 default_server;',
-  line    => 'add_header X-Served-By $hostname;',
-  require => Package['nginx'],
+exec { 'restart Nginx':
+  provider => shell,
+  command  => 'sudo service nginx restart',
 }
 
-file { '/var/www/html/index.html':
-  content => 'Holberton School',
-  require => Package['nginx'],
-}
-
-service { 'nginx':
-  ensure  => running,
-  require => Package['nginx'],
-}
+# OR    (combine all the steps above together)
+# configures nginx on a server
+# exec { 'setup_nginx':
+#   provider    => shell,
+#   environment => ["HOST=${hostname}"],
+#   command     => 'apt-get -y update; apt-get -y install nginx;
+#   sudo sed -i "/server {/a add_header X-Served-By $HOSTNAME;" /etc/nginx/sites-available/default;
+#   service nginx restart'
+# }
