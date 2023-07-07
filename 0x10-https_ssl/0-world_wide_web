@@ -1,22 +1,17 @@
 #!/usr/bin/env bash
-# A script that displays domain dns informations for a domain
-domaininfo () {
-	answer_section=$(dig "$1" | grep -A1 'ANSWER SECTION' | tail -n 1)
+# displays information about subdomains
 
-	subdomain=$(echo "$answer_section" | awk '{print $1;}' FS=.) 
-	record_type=$(echo "$answer_section" | awk '{print $4;}')
-	ip_address=$(echo "$answer_section" | awk '{print $5}')
+sub_info () {
+    
+    if [ "$#" -eq 2 ]; then
+        dig $2.$1 | grep -A1 'ANSWER SECTION:' | tr '\n' ' ' | awk '{split($0,a," "); split(a[4],b,"."); printf "The subdomain %s is a %s record and points to %s\n",b[1], a[7], a[8]}'
+    elif [ "$#" -eq 1 ]; then
+        dig www.$1 | grep -A1 'ANSWER SECTION:' | tr '\n' ' ' | awk '{split($0,a," "); printf "The subdomain www is a %s record and points to %s\n", a[7], a[8]}'
+        dig lb-01.$1 | grep -A1 'ANSWER SECTION:' | tr '\n' ' ' | awk '{split($0,a," "); printf "The subdomain lb-01 is a %s record and points to %s\n", a[7], a[8]}'
+        dig web-01.$1 | grep -A1 'ANSWER SECTION:' | tr '\n' ' ' | awk '{split($0,a," "); printf "The subdomain web-01 is a %s record and points to %s\n", a[7], a[8]}'
+        dig web-02.$1 | grep -A1 'ANSWER SECTION:' | tr '\n' ' ' | awk '{split($0,a," "); printf "The subdomain web-02 is a %s record and points to %s\n", a[7], a[8]}'
+    fi
 
-	echo "The subdomain $subdomain is a $record_type record and points to $ip_address" 
 }
 
-if [ $# -eq 1 ]
-then
-	domaininfo "www.$1" 
-	domaininfo "lb-01.$1"
-	domaininfo "web-01.$1"
-	domaininfo "web-02.$1"
-elif [ $# -eq 2 ]
-then
-	domaininfo "$2.$1"
-fi
+sub_info $1 $2
